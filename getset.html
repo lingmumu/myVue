@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>ideal</title>
+</head>
+<body>
+  <div id="test">
+    <p>{{msg}}</p>
+    <p>{{msg}}</p>
+    <p>{{what}}</p>
+    <p>{{hey}}</p>
+  </div>
+  <script>
+    var bindingMark = "data-element-binding"
+    function Element (id, initData) {
+      var self = this,
+          el = self.el = document.getElementById(id),
+          data = self.data = {},
+          bindings = {}
+          content = el.innerHTML.replace(/\{\{(.*)\}\}/g, markToken)
+
+      el.innerHTML = content
+
+      for (var variable in bindings) {
+        bind(variable)
+      }
+
+      if (initData) {
+        for (var variable in initData) {
+          data[variable] = initData[variable]
+        }
+      }
+
+      function markToken (match, variable) {
+        bindings[variable] = {}
+        return '<span '+ bindingMark +'='+ variable +'></span>'
+      }
+
+      function bind (variable) {
+        bindings[variable].els = [...document.querySelectorAll('['+bindingMark+'="'+ variable+'"]')]
+        bindings[variable].els.forEach(function (e) {
+          e.removeAttribute(bindingMark)
+        })
+
+        Object.defineProperty(data, variable, {
+          set: function (newVal) {
+            bindings[variable].els.forEach(function (e) {
+              bindings[variable].value = e.textContent = newVal
+            })
+          },
+          get: function () {
+            return bindings[variable].value
+          }
+        })
+      }
+    }
+
+    var app = new Element('test', {
+      msg: 'Hello'
+    })
+  </script>
+</body>
+</html>
