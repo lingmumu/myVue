@@ -1,0 +1,8 @@
+{
+	"name": "seed",
+	"version": "0.0.1",
+	"main": "src/main.js",
+	"scripts": [
+		"src/main.js"
+	]
+}
