@@ -4,10 +4,11 @@
   "asi": true,
   "multistr": true,
   "undef": true,
-  "unused": true,
+  "unused": false,
   "trailing": true,
   "sub": true,
   "node": true,
+  "laxbreak": true,
   "globals": {
       "console": true
   }

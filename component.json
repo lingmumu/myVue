@@ -3,6 +3,8 @@
 	"version": "0.0.1",
 	"main": "src/main.js",
 	"scripts": [
-		"src/main.js"
+		"src/main.js",
+		"src/directives.js",
+    "src/filters.js"
 	]
 }
