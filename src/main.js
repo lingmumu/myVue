@@ -6,9 +6,10 @@ var prefix = 'sd',
     }).join()
 function Seed (opts) {
   var self = this,
-    root = document.getElementById(opts.id),
-    els = root.querySelectorAll(selector),
-    bindings = {}
+    root = this.el = document.getElementById(opts.id),
+    els = root.querySelectorAll(selector)
+  
+  var bindings = self._bindings = {}
   self.scope = {}
 
   ;[].forEach.call(els, proceeNode)
@@ -26,7 +27,29 @@ function Seed (opts) {
       }
     })
   }
-    
+}
+
+Seed.prototype.dumn = function () {
+  var data = {}
+  for (var key in this._bindings) {
+    data[key] = this._bindings[key].value
+  }
+  return data
+}
+
+Seed.prototype.destroy = function () {
+  for (var key in this._bindings) {
+    this._bindings[key].directives.forEach(function (directive) {
+      if (directive.definintion.unbind) {
+        directive.definintion.unbind(
+          directive.el,
+          directive.argument,
+          directive
+        )
+      }
+    })
+  }
+  this.el.parentNode.remove(this.el)
 }
 
 function cloneAttributes (attributes) {
@@ -39,6 +62,7 @@ function cloneAttributes (attributes) {
 }
 
 function bindDirective (seed, el, bindings, directive) {
+  directive.el = el
   el.removeAttribute(directive.attr.name)
   var key = directive.key,
     binding = bindings[key]
@@ -48,7 +72,6 @@ function bindDirective (seed, el, bindings, directive) {
       directives: []
     }
   }
-  directive.el = el
   binding.directives.push(directive)
   if (directive.bind) {
     directive.bind(el, binding.value)
@@ -66,12 +89,13 @@ function bindAccessors (seed, key, binding) {
     set: function (value) {
       binding.value = value
       binding.directives.forEach(function (directive) {
+        var filteredValue = value
         if (value && directive.filters) {
-          value = applyFilter(value, directive)
+          filteredValue = applyFilter(value, directive)
         }
         directive.update(
           directive.el,
-          value,
+          filteredValue,
           directive.argument,
           directive,
           seed
@@ -119,12 +143,12 @@ function parseDirective (attr) {
         })
   return def
         ? {
-          attr: attr,
-          key: key,
-          filters: filters,
-          definintion: def,
-          argument: arg,
-          update: typeof def === 'function'
+          attr: attr, // 属性集合
+          key: key, // 属性名
+          filters: filters, // 过滤方法
+          definintion: def, // 指令
+          argument: arg, // 事件名
+          update: typeof def === 'function' // 具体调用那个指令
             ? def
             : def.update
         }
